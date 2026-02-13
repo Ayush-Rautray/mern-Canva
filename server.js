@@ -37,7 +37,7 @@ if (process.env.NODE_ENV === "production") {
 
 const dbConnect = async () => {
   try {
-    if (process.env.NODE_ENV === "local") {
+    if (process.env.NODE_ENV === "production ") {
       await mongoose.connect(process.env.LOCAL_DB_URl);
       console.log("Local Database Is Connected..");
     } else {
