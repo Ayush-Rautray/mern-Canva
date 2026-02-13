@@ -1,16 +1,19 @@
 import React, { useState } from "react";
-import { IoCloseSharp } from "react-icons/io5"; //<IoCloseSharp />
-import { FaGoogle } from "react-icons/fa";
+import { RxCross2 } from "react-icons/rx";
+import { BiLogoGmail } from "react-icons/bi";
 import { FaFacebook } from "react-icons/fa";
+import api from "../utils/api";
+import toast from "react-hot-toast";
 const Index = () => {
   const [type, setType] = useState("");
   const [show, setShow] = useState(false);
+  const [loader, setLoader] = useState(false);
+
   const [state, setState] = useState({
     name: "",
     email: "",
     password: "",
   });
-  console.log(state);
 
   const inputHandle = (e) => {
     setState({
@@ -19,25 +22,69 @@ const Index = () => {
     });
   };
 
+  const user_register = async (e) => {
+    e.preventDefault();
+
+    try {
+      setLoader(true);
+
+      const { data } = await api.post("/api/user-register", state);
+
+      setLoader(false);
+      //console.log(data);
+      localStorage.setItem("canva_token", data.token);
+      setState({
+        name: "",
+        email: "",
+        password: "",
+      });
+      window.location.href = "/";
+    } catch (error) {
+      setLoader(false);
+      toast.error(error.response.data.message);
+    }
+  };
+  //end method
+  const user_login = async (e) => {
+    e.preventDefault();
+
+    try {
+      setLoader(true);
+      const { data } = await api.post("/api/user-login", state);
+      setLoader(false);
+
+      localStorage.setItem("canva_token", data.token);
+      setState({
+        email: "",
+        password: "",
+      });
+
+      window.location.href = "/";
+    } catch (error) {
+      setLoader(false);
+      toast.error(error.response.data.message);
+    }
+  };
+  //end method
+
   return (
     <div className="bg-[#18191b] min-h-screen w-full ">
-      {/* Whole screen */}
       <div
-        className={`w-screen ${show ? "visible opacity-100" : "invisible opacity-30"} transition-all duration-400 h-screen fixed bg-[#252627ad] flex justify-center items-center `}
+        className={`w-screen ${show ? "visible opacity-100" : "invisible opacity-30"} transition-all duration-500 h-screen fixed bg-[#252627ad] flex justify-center items-center `}
       >
-        {/*SignIn Page */}
         <div className="w-[350px] bg-[#323335] m-auto px-6 py-4 rounded-md relative">
           <div
             onClick={() => setShow(false)}
             className="absolute right-4 top-4 text-xl cursor-pointer text-white"
           >
-            <IoCloseSharp />
+            <RxCross2 />
           </div>
           <h2 className="text-white pb-4 text-center text-xl">
             Login and Sign up in seconds
           </h2>
+
           {type === "signin" && (
-            <form>
+            <form onSubmit={user_login}>
               <div className="flex flex-col gap-3 mb-3 text-white">
                 <label htmlFor="email">Email</label>
                 <input
@@ -64,8 +111,11 @@ const Index = () => {
                 />
               </div>
               <div>
-                <button className="px-3 py-2 rounded-md bg-purple-500 w-full outline-none hover:bg-purple-600 text-white">
-                  Singin
+                <button
+                  disabled={loader}
+                  className="px-3 py-2 rounded-md bg-purple-500 w-full outline-none hover:bg-purple-600 text-white"
+                >
+                  {loader ? "loading.." : "Sign In"}
                 </button>
               </div>
 
@@ -80,7 +130,7 @@ const Index = () => {
               <div className="pb-4">
                 <button className="px-3 flex justify-center items-center gap-2 py-2 rounded-md bg-red-500 w-full outline-none hover:bg-red-600 text-white">
                   <span>
-                    <FaGoogle />
+                    <BiLogoGmail />
                   </span>
                   <span>Login with Gmail </span>
                 </button>
@@ -97,7 +147,7 @@ const Index = () => {
             </form>
           )}
           {type === "signup" && (
-            <form>
+            <form onSubmit={user_register}>
               <div className="flex flex-col gap-3 mb-3 text-white">
                 <label htmlFor="name">Name</label>
                 <input
@@ -137,8 +187,11 @@ const Index = () => {
                 />
               </div>
               <div>
-                <button className="px-3 py-2 rounded-md bg-purple-500 w-full outline-none hover:bg-purple-600 text-white">
-                  Sign Up
+                <button
+                  disabled={loader}
+                  className="px-3 py-2 rounded-md bg-purple-500 w-full outline-none hover:bg-purple-600 text-white"
+                >
+                  {loader ? "loading.." : "Sign Up"}
                 </button>
               </div>
 
@@ -153,7 +206,7 @@ const Index = () => {
               <div className="pb-4">
                 <button className="px-3 flex justify-center items-center gap-2 py-2 rounded-md bg-red-500 w-full outline-none hover:bg-red-600 text-white">
                   <span>
-                    <IoCloseSharp />
+                    <BiLogoGmail />
                   </span>
                   <span>Login with Gmail </span>
                 </button>
@@ -182,6 +235,7 @@ const Index = () => {
                 alt=""
               />
             </div>
+
             <div className="flex gap-4">
               <button
                 onClick={() => {
@@ -192,6 +246,7 @@ const Index = () => {
               >
                 SingIn
               </button>
+
               <button
                 onClick={() => {
                   setType("signup");
@@ -205,6 +260,7 @@ const Index = () => {
           </div>
         </div>
       </div>
+
       <div className="w-full h-full justify-center items-center p-4">
         <div className="py-[170px] flex justify-center items-center flex-col gap-6">
           <h2 className="text-5xl text-[#c7c5c5] font-bold">
@@ -227,4 +283,5 @@ const Index = () => {
     </div>
   );
 };
+
 export default Index;

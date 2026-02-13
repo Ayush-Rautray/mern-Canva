@@ -6,11 +6,12 @@ const cors = require("cors");
 const path = require("path");
 
 dotenv.config();
+app.use(express.json());
 
 if (process.env.NODE_ENV === "local") {
   app.use(
     cors({
-      origin: "http://localhost:3000",
+      origin: "http://localhost:5173",
       credentials: true,
     }),
   );
@@ -21,6 +22,9 @@ if (process.env.NODE_ENV === "local") {
     }),
   );
 }
+
+app.use("/api", require("./routes/designRoutes"));
+app.use("/api", require("./routes/authRoutes"));
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "./frontend/dist")));
@@ -34,17 +38,19 @@ if (process.env.NODE_ENV === "production") {
 const dbConnect = async () => {
   try {
     if (process.env.NODE_ENV === "local") {
-      await mongoose.connect(process.env.LOCAL_DB_URL);
-      console.log("Local db is connected ");
+      await mongoose.connect(process.env.LOCAL_DB_URl);
+      console.log("Local Database Is Connected..");
     } else {
-      await mongoose.connect(process.env.MONGODB_URL);
-      console.log("Production db is connected ");
+      await mongoose.connect(process.env.MONGODB_URl);
+      console.log("Production Database Is Connected..");
     }
   } catch (error) {
-    console.log("DB connection fail", error.message);
+    console.log("Database connection Failed." + error);
   }
 };
 dbConnect();
 
 const PORT = process.env.PORT;
-app.listen(PORT, () => console.log(`Server is running on port ${PORT}..`));
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
